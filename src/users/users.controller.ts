@@ -1,9 +1,21 @@
-import { Body, Controller, Post, Res, UseGuards } from '@nestjs/common';
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+import {
+  Body,
+  Controller,
+  Post,
+  Get,
+  Req,
+  Res,
+  UseGuards,
+} from '@nestjs/common';
 import { UsersService } from './users.service';
 import { GetUser, LoginDto, RegisterDto } from './dto/user.dto';
 import { Response } from 'express';
 import { JwtAuthGuard } from 'src/common/guards/auth-guard';
 import { userWithoutPassword } from 'src/configs/interfaces/user.interface';
+import { CustomError } from 'src/common/exceptions/customError';
+import { access } from 'fs';
 
 @Controller('api/users')
 export class UsersController {
@@ -35,10 +47,7 @@ export class UsersController {
       sameSite: 'lax',
     });
 
-    delete result.accessToken;
     delete result.refreshToken;
-
-    console.log(result);
 
     return result;
   }
@@ -69,29 +78,36 @@ export class UsersController {
       sameSite: 'lax',
     });
 
-    delete result.accessToken;
     delete result.refreshToken;
-
-    console.log(result);
 
     return result;
   }
 
   //getUser
   @UseGuards(JwtAuthGuard)
-  @Post('get-user')
+  @Get('get-user')
   async getUser(
-    @Body() body: GetUser,
     @Res({ passthrough: true }) res: Response,
+    @Req() req: Request,
   ): Promise<userWithoutPassword | null> {
-    const result = await this.usersService.getUser(body).catch((e) => {
+    const user = req['user'];
+    if (!user) {
+      throw new CustomError('User not found from the Token', 409);
+    }
+    let result = await this.usersService.getUser(user).catch((e) => {
       console.log(e);
       throw e;
     });
 
     if (!result) {
-      res.status(404).send('User not found');
+      throw new CustomError('User not found', 404);
     }
+
+    result = {
+      ...result,
+      createdAt: null,
+      updatedAt: null,
+    };
 
     return result;
   }
