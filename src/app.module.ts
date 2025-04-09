@@ -9,6 +9,10 @@ import { UsersModule } from './users/users.module';
 import { UsersController } from './users/users.controller';
 import { UsersService } from './users/users.service';
 import { PrismaService } from './prisma/prisma.service';
+import { AuthModule } from './auth/auth.module';
+import { AuthController } from './auth/auth.controller';
+import { AuthService } from './auth/auth.service';
+import { JwtModule, JwtService } from '@nestjs/jwt';
 
 @Module({
   imports: [
@@ -22,10 +26,14 @@ import { PrismaService } from './prisma/prisma.service';
       },
     }),
     UsersModule,
+    AuthModule,
+    JwtModule.register({
+      secret: process.env.JWT_SECRET,
+    }),
   ],
-  controllers: [AppController, UsersController],
-  providers: [AppService, UsersService, PrismaService],
-  exports: [UsersService],
+  controllers: [AppController, UsersController, AuthController],
+  providers: [AppService, UsersService, PrismaService, AuthService, JwtService],
+  exports: [UsersService, PrismaService, AuthService],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {

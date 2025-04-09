@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { hash, compare } from 'bcryptjs';
 import { CustomError } from '../exceptions/customError';
 import { HttpStatus } from '@nestjs/common';

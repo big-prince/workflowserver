@@ -1,5 +1,5 @@
 import { IsEmail, IsNotEmpty, IsString, Length } from 'class-validator';
-import { UserBase } from 'src/configs/interfaces/user.interface';
+import { getUser, UserBase } from 'src/configs/interfaces/user.interface';
 
 type RegisterUser = Required<
   Pick<UserBase, 'email' | 'password' | 'fullName'> & Pick<UserBase, 'username'>
@@ -34,4 +34,15 @@ export class LoginDto implements loginUser {
   @IsString()
   @IsNotEmpty()
   password: string;
+}
+
+export class GetUser implements getUser {
+  @IsString()
+  id?: string;
+
+  @IsEmail()
+  email?: string;
+
+  @IsString()
+  username?: string;
 }

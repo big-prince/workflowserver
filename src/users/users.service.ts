@@ -1,17 +1,30 @@
+/* eslint-disable prettier/prettier */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { Prisma, User } from '@prisma/client';
-import { hashPassword } from 'src/common/utils/hashpassword';
-import { RegisterDto } from './dto/user.dto';
+import { AuthService } from 'src/auth/auth.service';
+import { User } from '@prisma/client';
+import { hashPassword, comparePassword } from 'src/common/utils/hashpassword';
+import { LoginDto, RegisterDto } from './dto/user.dto';
 import { CustomError } from 'src/common/exceptions/customError';
+import {
+  SaveTokenInterface,
+  TokenPayloadInterface,
+} from 'src/configs/interfaces/auth.interface';
+import {
+  getUser,
+  userWithoutPassword,
+} from 'src/configs/interfaces/user.interface';
 
 @Injectable()
 export class UsersService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly authService: AuthService,
+  ) {}
 
   //register a new user
-  async registerUser(data: RegisterDto): Promise<User> {
+  async registerUser(data: RegisterDto): Promise<Record<string, any>> {
     //check for user by email
     const userExist = await this.getUserByEmail(data.email);
     if (userExist) {
@@ -40,7 +53,111 @@ export class UsersService {
         throw new CustomError(`${e}`, 500);
       });
 
-    return user;
+    console.log('🚀 ~ UsersService ~ registerUser ~ user:', user);
+
+    //generate token
+    if (!user) {
+      throw new CustomError('User Not Created', 500);
+    }
+    const tokenPayload: TokenPayloadInterface = {
+      sub: user.id,
+      email: data.email,
+    };
+    const token = this.authService.generateToken(tokenPayload);
+    const refreshToken = this.authService.generateRefreshToken(tokenPayload);
+    if (!token || !refreshToken) {
+      throw new CustomError('Tokens Not Created', 500);
+    }
+    //save token in db
+    const savePayload: SaveTokenInterface = {
+      userId: user.id,
+      token: refreshToken,
+    };
+    const saveToken = await this.authService.saveToken(savePayload);
+    if (!saveToken) {
+      throw new CustomError('Token Not Saved', 500);
+    }
+
+    const responseModule: Record<string, any> = {
+      message: 'User Created Successfully',
+      accessToken: token,
+      refreshToken: refreshToken,
+      userID: user.id,
+    };
+
+    return responseModule;
+  }
+
+  //login user
+  async loginUser(data: LoginDto): Promise<Record<string, any>> {
+    //check for user by email
+    const user = await this.getUserByEmail(data.email);
+    if (!user) {
+      throw new CustomError('User Not Found', 404);
+    }
+    if (!user.password) {
+      throw new CustomError('User Password invalid', 404);
+    }
+    //check password
+    const isPasswordValid = await comparePassword(data.password, user.password);
+    if (!isPasswordValid) {
+      throw new CustomError('Invalid Password', 401);
+    }
+    //generate token
+    const tokenPayload: TokenPayloadInterface = {
+      sub: user.id,
+      email: data.email,
+    };
+    const token = this.authService.generateToken(tokenPayload);
+    const refreshToken = this.authService.generateRefreshToken(tokenPayload);
+    if (!token || !refreshToken) {
+      throw new CustomError('Tokens Not Created', 500);
+    }
+    //save token in db
+    const savePayload: SaveTokenInterface = {
+      userId: user.id,
+      token: refreshToken,
+    };
+    const saveToken = await this.authService.saveToken(savePayload);
+    if (!saveToken) {
+      throw new CustomError('Token Not Saved', 500);
+    }
+
+    const responseModule: Record<string, any> = {
+      message: 'Login Successful',
+      accessToken: token,
+      refreshToken: refreshToken,
+      userID: user.id,
+    };
+
+    return responseModule;
+  }
+
+  //get user
+  async getUser(data: getUser): Promise<userWithoutPassword | null> {
+    let query: any = {};
+    if (data.id) {
+      query = { id: data.id };
+    } else if (data.email) {
+      query = { email: data.email };
+    } else if (data.username) {
+      query = { username: data.username };
+    } else {
+      throw new CustomError('Credentials not Provided', 400);
+    }
+
+    //check for user
+    const user = await this.prisma.user.findUnique({
+      where: query,
+    });
+    if (!user) {
+      throw new CustomError('User Not Found', 404);
+    }
+    if (!user.password) {
+      throw new CustomError('User Password invalid', 404);
+    }
+    const { password, ...userWithoutPassword } = user;
+    return userWithoutPassword;
   }
 
   //find existing user
