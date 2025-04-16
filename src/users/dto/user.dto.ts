@@ -26,6 +26,28 @@ export class RegisterDto implements RegisterUser {
   fullName: string;
 }
 
+export class GithubAuthUserDto {
+  @IsEmail()
+  @IsNotEmpty()
+  email: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @Length(3, 20)
+  username: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @Length(3, 20)
+  fullName: string;
+}
+
+export class GithubAuthDto {
+  @IsString()
+  @IsNotEmpty()
+  accessToken: string;
+}
+
 export class LoginDto implements loginUser {
   @IsEmail()
   @IsNotEmpty()

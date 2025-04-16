@@ -1,8 +1,6 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 // src/configuration.ts
 import { registerAs } from '@nestjs/config';
 import * as Joi from 'joi';
-import * as jwt from 'jsonwebtoken';
 
 export const validationSchema: Joi.ObjectSchema = Joi.object({
   NODE_ENV: Joi.string()
@@ -13,6 +11,10 @@ export const validationSchema: Joi.ObjectSchema = Joi.object({
   DATABASE_URL: Joi.string(),
   JWT_SECRET: Joi.string().required(),
   JWT_EXPIRATION: Joi.string().default('1h'),
+  REDIS_HOST: Joi.string(),
+  GITHUB_CLIENT_ID: Joi.string(),
+  GITHUB_CLIENT_SECRET: Joi.string(),
+  GITHUB_CALLBACK_URL: Joi.string(),
 });
 
 export default registerAs('app', () => ({
@@ -22,6 +24,10 @@ export default registerAs('app', () => ({
   dbHost: process.env.DATABASE_HOST,
   jwtSecret: process.env.JWT_SECRET,
   jwtExpiration: process.env.JWT_EXPIRATION,
+  redisHost: process.env.REDIS_HOST,
+  githubClientId: process.env.GITHUB_CLIENT_ID,
+  githubClientSecret: process.env.GITHUB_CLIENT_SECRET,
+  githubCallbackUrl: process.env.GITHUB_CALLBACK_URL,
 }));
 
 export const allEnv = {
@@ -32,4 +38,8 @@ export const allEnv = {
   jwtSecret: process.env.JWT_SECRET,
   jwtExpiration: process.env.JWT_EXPIRATION,
   jwtRefreshSecret: process.env.JWT_REFRESH_SECRET,
+  redisHost: process.env.REDIS_HOST,
+  githubClientId: process.env.GITHUB_CLIENT_ID,
+  githubClientSecret: process.env.GITHUB_CLIENT_SECRET,
+  githubCallbackUrl: process.env.GITHUB_CALLBACK_URL,
 };
