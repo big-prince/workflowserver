@@ -9,18 +9,30 @@ import Redis from 'ioredis';
       provide: 'REDIS_CLIENT',
       useFactory: () => {
         const redisOptions: any = {
-          host: process.env.REDIS_HOST || 'localhost', // Default to localhost if not set
-          port: parseInt(process.env.REDIS_PORT || '6379'), // Default to 6379
-          password: process.env.REDIS_PASSWORD || null, // Optional, only used if set
-          db: process.env.REDIS_DB ? parseInt(process.env.REDIS_DB) : 0, // Default to 0
+          host: process.env.REDIS_HOST || 'localhost',
+          port: parseInt(process.env.REDIS_PORT || '6379'),
+          password: process.env.REDIS_PASSWORD,
+          db: process.env.REDIS_DB ? parseInt(process.env.REDIS_DB) : 0,
+          connectTimeout: 10000,
+          retryStrategy: (times) => Math.min(times * 3000, 30000),
         };
 
-        // Enable TLS if REDIS_TLS is explicitly set to 'true' (for production)
         if (process.env.REDIS_TLS === 'true') {
           redisOptions.tls = {};
         }
 
-        return new Redis(redisOptions);
+        const redis = new Redis(redisOptions);
+
+        // Handle errors gracefully
+        redis.on('error', (err) => {
+          console.error('Redis connection error:', err);
+        });
+
+        redis.on('connect', () => {
+          console.log('Connected to Redis successfully');
+        });
+
+        return redis;
       },
     },
   ],
