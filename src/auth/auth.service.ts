@@ -140,8 +140,8 @@ export class AuthService {
     if (!emails || emails.length === 0 || emails === undefined) {
       //try to get email from github api
       const githubEmail = await this.getGithubEmail(token);
-      if (!githubEmail) {
-        throw new CustomError('Email not found', 500);
+      if (!githubEmail || githubEmail == null) {
+        email = 'default@mail.com';
       }
       email = githubEmail;
     } else {
@@ -295,10 +295,9 @@ export class AuthService {
           Accept: 'application/vnd.github.v3+json',
         },
       });
-      console.log('🚀 ~ AuthService ~ getGithubEmail ~ response:', response);
       if (!response.ok) {
         console.error('Failed to fetch GitHub email:', response.status);
-        throw new CustomError('Failed to fetch GitHub email', 500);
+        return null;
       }
       const data = await response.json();
       return data[0].email; // Return the first email address
