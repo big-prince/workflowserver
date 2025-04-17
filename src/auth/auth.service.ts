@@ -147,7 +147,6 @@ export class AuthService {
         email = githubEmail;
       }
     }
-    console.log('EMAIL VALUE:', email);
     // Safely extract the username part from email
     const emailUsername = email.includes('@') ? email.split('@')[0] : email;
 
@@ -269,6 +268,7 @@ export class AuthService {
       username: usernameValue,
       fullName: displayNameValue,
     };
+    console.log('🚀 ~ AuthService ~ validateGithubAuth ~ userData:', userData);
     const user = await this.registerUser(userData).catch((e) => {
       console.log(e);
       if (e instanceof CustomError) {
