@@ -126,7 +126,7 @@ export class AuthController {
     delete result.refreshToken;
 
     return res.redirect(
-      `https://dvtfsrrw-5500.use.devtunnels.ms/client/dashboard.html?token=${result.accessToken}&userID=${result.userID}`,
+      `https://work-i.netlify.app/dashboard.html?token=${result.accessToken}&userID=${result.userID}`,
     );
   }
 
