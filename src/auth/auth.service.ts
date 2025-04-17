@@ -137,7 +137,7 @@ export class AuthService {
     const { username, displayName, emails } = profile;
     console.log('🚀 ~ AuthService ~ validateGithubAuth ~ profile:', profile);
 
-    let email: string = 'default@mail.com'; // Default fallback email
+    let email: string; // Will be set with unique value below
     if (emails && emails.length > 0) {
       email = emails[0].value;
     } else {
@@ -145,8 +145,13 @@ export class AuthService {
       const githubEmail = await this.getGithubEmail(token);
       if (githubEmail) {
         email = githubEmail;
+      } else {
+        // Generate unique email using username or a random value
+        const uniqueId = username || crypto.randomBytes(8).toString('hex');
+        email = `github_${uniqueId}@placeholder.com`;
       }
     }
+
     // Safely extract the username part from email
     const emailUsername = email.includes('@') ? email.split('@')[0] : email;
 
