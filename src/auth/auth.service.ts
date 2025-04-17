@@ -288,17 +288,16 @@ export class AuthService {
   }
 
   async getGithubEmail(token: string) {
-    const url = 'https://api.github.com/user/emails';
-    const headers = {
-      Authorization: `Bearer ${token}`,
-      'User-Agent': 'myWorkflow',
-    };
-
     try {
-      const response = await fetch(url, { headers });
+      const response = await fetch('https://api.github.com/user/emails', {
+        headers: {
+          Authorization: `token ${token}`,
+          Accept: 'application/vnd.github.v3+json',
+        },
+      });
       console.log('🚀 ~ AuthService ~ getGithubEmail ~ response:', response);
       if (!response.ok) {
-        console.error('Failed to fetch GitHub email:', response.statusText);
+        console.error('Failed to fetch GitHub email:', response.status);
         throw new CustomError('Failed to fetch GitHub email', 500);
       }
       const data = await response.json();
