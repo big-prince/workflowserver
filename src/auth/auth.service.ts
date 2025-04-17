@@ -136,31 +136,25 @@ export class AuthService {
   async validateGithubAuth(profile: any, token: string) {
     const { username, displayName, emails } = profile;
 
-    let email: string;
-    if (!emails || emails.length === 0 || emails === undefined) {
-      //try to get email from github api
-      const githubEmail = await this.getGithubEmail(token);
-      if (!githubEmail || githubEmail == null) {
-        email = 'default@mail.com';
-      }
-      email = githubEmail;
-    } else {
+    let email: string = 'default@mail.com'; // Default fallback email
+    if (emails && emails.length > 0) {
       email = emails[0].value;
-    }
-
-    let displayNameValue: string;
-    if (!displayName || displayName == null || displayName === undefined) {
-      displayNameValue = email.split('@')[0];
     } else {
-      displayNameValue = displayName;
+      // Try to get email from github api
+      const githubEmail = await this.getGithubEmail(token);
+      if (githubEmail) {
+        email = githubEmail;
+      }
     }
+    console.log('EMAIL VALUE:', email);
+    // Safely extract the username part from email
+    const emailUsername = email.includes('@') ? email.split('@')[0] : email;
 
-    let usernameValue = username;
-    if (!username || username == null || username === undefined) {
-      usernameValue = email.split('@')[0];
-    } else {
-      usernameValue = username;
-    }
+    // Set display name with fallback to email username
+    const displayNameValue = displayName || emailUsername;
+
+    // Set username with fallback to email username
+    const usernameValue = username || emailUsername;
 
     //check if user already exists
     const existingUser = await this.prisma.user
