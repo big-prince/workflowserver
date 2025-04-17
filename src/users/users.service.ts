@@ -20,12 +20,8 @@ export class UsersService {
   //get user
   async getUser(data: getUser): Promise<userWithoutPassword | null> {
     let query: any = {};
-    if (data.id) {
-      query = { id: data.id };
-    } else if (data.email) {
-      query = { email: data.email };
-    } else if (data.username) {
-      query = { username: data.username };
+    if (data) {
+      query = { id: data };
     } else {
       throw new CustomError('Credentials not Provided', 400);
     }

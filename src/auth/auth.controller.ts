@@ -12,6 +12,7 @@ import {
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthGuard } from '@nestjs/passport';
+import { JwtAuthGuard } from 'src/common/guards/auth-guard';
 import { Request, Response } from 'express';
 import { RegisterDto, LoginDto } from 'src/users/dto/user.dto';
 import { CustomError } from 'src/common/exceptions/customError';
@@ -124,6 +125,39 @@ export class AuthController {
 
     delete result.refreshToken;
 
-    res.status(200).json(result);
+    return res.redirect(
+      `https://dvtfsrrw-5500.use.devtunnels.ms/client/dashboard.html?token=${result.accessToken}&userID=${result.userID}`,
+    );
+  }
+
+  //Logout user
+  @UseGuards(JwtAuthGuard)
+  @Post('logout')
+  async logoutUser(
+    @Req() req: Request,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const user = req['user'].id;
+    console.log('🚀 ~ AuthController ~ user:', user);
+    const result = await this.authService.logoutUser(user).catch((e) => {
+      console.log(e);
+      throw e;
+    });
+    if (!result) {
+      throw new CustomError('Unable to logout', 401);
+    }
+    // Clear cookies
+    res.clearCookie('accessToken', {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+    });
+    res.clearCookie('refreshToken', {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+    });
+
+    return { message: 'Logged out successfully' };
   }
 }

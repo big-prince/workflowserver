@@ -430,4 +430,28 @@ export class AuthService {
 
     return responseModule;
   }
+
+  async logoutUser(userId: string): Promise<boolean> {
+    //delete token from db
+    const deleteToken = await this.prisma.token
+      .deleteMany({
+        where: { userId },
+      })
+      .catch((e) => {
+        console.log(e);
+        if (e instanceof CustomError) {
+          throw e;
+        }
+        throw new CustomError(`${e}`, 500);
+      });
+    if (!deleteToken) {
+      throw new CustomError('Token Not Deleted', 500);
+    }
+
+    //delete token from redis cache
+    const cacheKey = `${cacheKeys.USER}:${userId}`;
+    await this.redis.del(cacheKey);
+
+    return true;
+  }
 }

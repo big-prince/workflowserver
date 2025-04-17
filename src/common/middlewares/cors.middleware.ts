@@ -28,10 +28,5 @@ export class CorsMiddleware implements NestMiddleware {
       }
       next();
     });
-
-    // Handle preflight
-    if (req.method === 'OPTIONS') {
-      return res.sendStatus(204);
-    }
   }
 }

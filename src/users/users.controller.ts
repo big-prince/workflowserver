@@ -27,6 +27,7 @@ export class UsersController {
     @Req() req: Request,
   ): Promise<userWithoutPassword | null> {
     const user = req['user'].id;
+    console.log('🚀 ~ UsersController ~ user:', user);
     if (!user) {
       throw new CustomError('User not found from the Token', 409);
     }
