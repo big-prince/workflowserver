@@ -104,6 +104,7 @@ export class AuthController {
         throw e;
       });
 
+    console.log('🚀 ~ AuthController ~ githubAuthCallback ~ result:', result);
     if (!result) {
       throw new CustomError('Unable to login with Github', 401);
     }

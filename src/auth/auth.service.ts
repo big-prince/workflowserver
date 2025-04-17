@@ -279,6 +279,8 @@ export class AuthService {
     if (!user) {
       throw new CustomError('User Not Created from Github Validation', 500);
     }
+
+    return user;
   }
 
   async getGithubEmail(token: string) {
