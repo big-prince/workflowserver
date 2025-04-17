@@ -135,14 +135,9 @@ export class AuthService {
   //validate github Auth
   async validateGithubAuth(profile: any, token: string) {
     const { username, displayName, emails } = profile;
-    console.log('🚀 ~ AuthService ~ validateGithubAuth ~ profile:', {
-      username,
-      displayName,
-      emails,
-    });
 
-    let email = emails[0].value;
-    if (!email) {
+    let email: string;
+    if (!emails || emails.length === 0 || emails === undefined) {
       //try to get email from github api
       const githubEmail = await this.getGithubEmail(token);
       if (!githubEmail) {
@@ -153,14 +148,18 @@ export class AuthService {
       email = emails[0].value;
     }
 
-    let displayNameValue = displayName;
-    if (!displayNameValue) {
-      displayNameValue = username;
+    let displayNameValue: string;
+    if (!displayName || displayName == null || displayName === undefined) {
+      displayNameValue = email.split('@')[0];
+    } else {
+      displayNameValue = displayName;
     }
 
     let usernameValue = username;
-    if (!usernameValue) {
+    if (!username || username == null || username === undefined) {
       usernameValue = email.split('@')[0];
+    } else {
+      usernameValue = username;
     }
 
     //check if user already exists
@@ -260,6 +259,13 @@ export class AuthService {
       return responseModule;
     }
 
+    console.log('⚠️ User Not Found in Database Records, Creating New User.');
+    console.log(
+      '🚀 ~ AuthService ~ validateGithubAuth ~ email:',
+      email,
+      usernameValue,
+      displayNameValue,
+    );
     //Create new user if not exists
     const auxPassword = crypto.randomBytes(16).toString('hex');
     const userData: RegisterDto = {
