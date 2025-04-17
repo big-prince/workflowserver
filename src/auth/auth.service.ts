@@ -296,7 +296,9 @@ export class AuthService {
 
     try {
       const response = await fetch(url, { headers });
+      console.log('🚀 ~ AuthService ~ getGithubEmail ~ response:', response);
       if (!response.ok) {
+        console.error('Failed to fetch GitHub email:', response.statusText);
         throw new CustomError('Failed to fetch GitHub email', 500);
       }
       const data = await response.json();
