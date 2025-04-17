@@ -135,6 +135,7 @@ export class AuthService {
   //validate github Auth
   async validateGithubAuth(profile: any, token: string) {
     const { username, displayName, emails } = profile;
+    console.log('🚀 ~ AuthService ~ validateGithubAuth ~ profile:', profile);
 
     let email: string = 'default@mail.com'; // Default fallback email
     if (emails && emails.length > 0) {
