@@ -152,7 +152,7 @@ export class AuthService {
     const emailUsername = email.includes('@') ? email.split('@')[0] : email;
 
     // Set display name with fallback to email username
-    const displayNameValue = displayName || emailUsername;
+    const displayNameValue = displayName || username || emailUsername;
 
     // Set username with fallback to email username
     const usernameValue = username || emailUsername;
