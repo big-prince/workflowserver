@@ -8,28 +8,37 @@ import Redis from 'ioredis';
     {
       provide: 'REDIS_CLIENT',
       useFactory: () => {
-        const redisOptions: any = {
-          host: process.env.REDIS_HOST || 'localhost',
-          port: parseInt(process.env.REDIS_PORT || '6379'),
-          password: process.env.REDIS_PASSWORD,
-          db: process.env.REDIS_DB ? parseInt(process.env.REDIS_DB) : 0,
-          connectTimeout: 10000,
-          retryStrategy: (times) => Math.min(times * 3000, 30000),
-        };
+        let redis: Redis;
 
-        if (process.env.REDIS_TLS === 'true') {
-          redisOptions.tls = {};
+        if (process.env.REDIS_URL) {
+          // Production / Railway
+          redis = new Redis(process.env.REDIS_URL);
+          console.log('🌐 Connecting to Redis via REDIS_URL...');
+        } else {
+          // Local development
+          const redisOptions: any = {
+            host: process.env.REDIS_HOST || 'localhost',
+            port: parseInt(process.env.REDIS_PORT || '6379'),
+            password: process.env.REDIS_PASSWORD,
+            db: process.env.REDIS_DB ? parseInt(process.env.REDIS_DB) : 0,
+            connectTimeout: 10000,
+            retryStrategy: (times) => Math.min(times * 3000, 30000),
+          };
+
+          if (process.env.REDIS_TLS === 'true') {
+            redisOptions.tls = {};
+          }
+
+          redis = new Redis(redisOptions);
+          console.log('🖥️ Connecting to Local Redis...');
         }
 
-        const redis = new Redis(redisOptions);
-
-        // Handle errors gracefully
         redis.on('error', (err) => {
-          console.error('Redis connection error:', err);
+          console.error('❌ Redis connection error:', err);
         });
 
         redis.on('connect', () => {
-          console.log('Connected to Redis successfully');
+          console.log('✅ Connected to Redis successfully');
         });
 
         return redis;
