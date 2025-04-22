@@ -207,11 +207,12 @@ const config = {
     "db"
   ],
   "activeProvider": "postgresql",
+  "postinstall": false,
   "inlineDatasources": {
     "db": {
       "url": {
         "fromEnvVar": "DATABASE_URL",
-        "value": "postgresql://postgres:dream831@localhost:5432/workflow?schema=public"
+        "value": null
       }
     }
   },
