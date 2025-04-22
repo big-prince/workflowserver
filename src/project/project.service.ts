@@ -72,6 +72,7 @@ export class ProjectService {
       },
     });
 
+    console.log(project);
     cacheKey = `${cacheKeys.PROJECT}:${project.id}`;
     const cacheTTL = 60 * 280;
     await this.cacheService.set(cacheKey, project, cacheTTL);
