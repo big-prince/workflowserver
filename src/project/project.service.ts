@@ -20,7 +20,20 @@ export class ProjectService {
     data: CreateProject,
     user: string,
   ): Promise<Record<any, string>> {
-    const { name, description } = data;
+    const {
+      name,
+      description,
+      type,
+      githubUrl,
+      deadline,
+      startDate,
+      privacy,
+      color,
+      creatorId,
+      status,
+      members,
+      tasks,
+    } = data;
     let createorId = data.creatorId;
     createorId = user;
 
@@ -42,7 +55,20 @@ export class ProjectService {
       data: {
         name,
         description,
+        type,
+        githubUrl,
+        deadline,
+        startDate,
+        privacy,
+        color,
         creatorId: createorId,
+        status,
+        members: {
+          connect: members?.map((member) => ({ id: member })),
+        },
+        tasks: {
+          connect: tasks?.map((task) => ({ id: task })),
+        },
       },
     });
 
@@ -59,7 +85,7 @@ export class ProjectService {
   }
 
   //GET PROJECT BY ID
-  async getProjectById(id: string): Promise<Project> {
+  async getProjectById(id: string): Promise<any> {
     const cacheKey = `${cacheKeys.PROJECT}:${id}`;
     const cachedProject = await this.cacheService.get(cacheKey);
 
@@ -83,7 +109,7 @@ export class ProjectService {
   }
 
   //GET PROJECT BY NAME
-  async getProjectByName(name: string): Promise<Project> {
+  async getProjectByName(name: string): Promise<any> {
     const cacheKey = `${cacheKeys.PROJECT}:${name}`;
     const cachedProject = await this.cacheService.get(cacheKey);
 
