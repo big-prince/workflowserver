@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { User } from '@prisma/client';
 import { CustomError } from 'src/common/exceptions/customError';
 import {
   getUser,
@@ -41,7 +40,7 @@ export class UsersService {
   }
 
   //find existing user
-  async getUserByEmail(email: string): Promise<User | null> {
+  async getUserByEmail(email: string): Promise<any> {
     //check for user
     const user = await this.prisma.user
       .findUnique({
@@ -59,7 +58,7 @@ export class UsersService {
   }
 
   //find user byusername
-  async getUserByUsername(username: string): Promise<User | null> {
+  async getUserByUsername(username: string): Promise<any> {
     //check for user
     const user = await this.prisma.user
       .findUnique({
@@ -77,7 +76,7 @@ export class UsersService {
   }
 
   //find user by id
-  async getUserById(id: string): Promise<User | null> {
+  async getUserById(id: string): Promise<any> {
     //check for user
     const user = await this.prisma.user
       .findUnique({

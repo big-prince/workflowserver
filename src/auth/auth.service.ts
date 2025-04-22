@@ -9,7 +9,6 @@ import {
   TokenModelInterface,
   SaveTokenInterface,
 } from 'src/configs/interfaces/auth.interface';
-import { User } from '@prisma/client';
 //config file
 import { allEnv } from 'src/configs/env.config';
 import { PrismaService } from 'src/prisma/prisma.service';
@@ -334,7 +333,7 @@ export class AuthService {
       ...data,
       password: hashedPassword,
     };
-    const user: User = await this.prisma.user
+    const user = await this.prisma.user
       .create({
         data: createData,
       })
