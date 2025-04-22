@@ -46,4 +46,8 @@ export class CreateProjectDto implements CreateProjectType {
   @IsString()
   @IsNotEmpty()
   color: string;
+
+  @IsString()
+  @IsNotEmpty()
+  status: string;
 }
