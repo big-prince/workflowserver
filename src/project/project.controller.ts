@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-return */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { Controller, Get, Post, UseGuards, Body, Req } from '@nestjs/common';
 import { ProjectService } from './project.service';
@@ -43,6 +44,23 @@ export class ProjectController {
       }
       throw new CustomError(`${e}`, 500);
     });
+
+    return result;
+  }
+
+  //GET PROJECTS BY USER ID
+  @UseGuards(JwtAuthGuard, AuthUserGuard)
+  @Get('get-user-projects')
+  async getUserProjects(@Req() req: Request): Promise<Record<string, any>> {
+    const userID: string = req['user'].id;
+    const result = await this.projectService
+      .getUserProjects(userID)
+      .catch((e) => {
+        if (e instanceof CustomError) {
+          throw e;
+        }
+        throw new CustomError(`${e}`, 500);
+      });
 
     return result;
   }

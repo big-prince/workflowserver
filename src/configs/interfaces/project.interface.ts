@@ -3,14 +3,15 @@ export interface CreateProject {
   description: string | null;
   type: string;
   githubUrl: string | null;
-  deadline: Date | null;
-  startDate: Date | null;
+  deadline: Date;
+  startDate: Date;
   privacy: string;
   color: string;
   creatorId: string;
   status: string;
+  pinned: boolean;
+  techStack: string[];
   members?: string[];
-  tasks?: string[];
 }
 
 export interface Project {
@@ -19,12 +20,14 @@ export interface Project {
   description: string | null;
   type: string;
   githubUrl: string | null;
-  deadline: Date | null;
-  startDate: Date | null;
+  deadline: Date;
+  startDate: Date;
   privacy: string;
   color: string;
   creatorId: string;
   status: string;
+  pinned: boolean;
+  techStack: string[];
   members?: string[];
   tasks?: string[];
   createdAt: Date;

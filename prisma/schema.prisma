@@ -58,9 +58,11 @@ model Project {
   githubUrl   String?   @unique
   deadline    DateTime?
   startDate   DateTime?
+  techStack   String[]  @default([])
   privacy     String?   @default("Public")
   status      String?   @default("Active")
   color       String?
+  pinned      Boolean   @default(false)
 
   // Relationships
   creatorId String
